@@ -165,12 +165,37 @@ class Program
         Console.WriteLine("Частота букв:");
         foreach (var pair in stats.LetterFrequency)
         {
-            Console.WriteLine($"{pair.Key}: {pair.Value}");
+                sortedLetters.Add(pair);
+            }
+
+            for (int i = 0; i < sortedLetters.Count - 1; i++)
+            {
+                for (int j = 0; j < sortedLetters.Count - i - 1; j++)
+                {
+                    if (sortedLetters[j].Value < sortedLetters[j + 1].Value)
+                    {
+                        var temp = sortedLetters[j];
+                        sortedLetters[j] = sortedLetters[j + 1];
+                        sortedLetters[j + 1] = temp;
+                    }
+                }
+            }
+
+            int count = Math.Min(10, sortedLetters.Count);
+            for (int i = 0; i < count; i++)
+            {
+                Console.WriteLine($"  '{sortedLetters[i].Key}': {sortedLetters[i].Value} раз");
+            }
+        }
+        else
+        {
+            Console.WriteLine("  Нет букв для анализа");
         }
         Console.WriteLine();
     }
 
-    static void ShowPreviousStats()
+
+    static void ShowPreviousStatistics()
     {
         if (allStats.Count == 0)
         {
