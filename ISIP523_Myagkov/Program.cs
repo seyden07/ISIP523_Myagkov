@@ -53,6 +53,61 @@ class Program
 
         TextStats stats = new TextStats();
         
+        // Подсчет слов и поиск самого короткого/длинного слова
+        string[] words = SplitTextIntoWords(text);
+        stats.WordCount = words.Length;
+        if (words.Length > 0)
+        {
+            stats.ShortestWord = words[0];
+            stats.LongestWord = words[0];
+            foreach (string word in words)
+            {
+                if (word.Length < stats.ShortestWord.Length)
+                    stats.ShortestWord = word;
+                if (word.Length > stats.LongestWord.Length)
+                    stats.LongestWord = word;
+            }
+        }
+
+        // Подсчет предложений
+        stats.SentenceCount = CountSentences(text);
+
+        // Подсчет гласных/согласных и частоты букв
+        CountLettersAndFrequency(text, stats);
+
+        allStats.Add(stats);
+        DisplayCurrentStats(stats);
+    }
+
+    // Разделение текста на слова с обработкой знаков препинания
+    static string[] SplitTextIntoWords(string text)
+    {
+        List<string> words = new List<string>();
+        StringBuilder currentWord = new StringBuilder();
+
+        foreach (char c in text)
+        {
+            if (char.IsLetter(c) || c == '\'')
+            {
+                currentWord.Append(c);
+            }
+            else
+            {
+                if (currentWord.Length > 0)
+                {
+                    words.Add(currentWord.ToString());
+                    currentWord.Clear();
+                }
+            }
+        }
+        
+        // Добавляем последнее слово
+        if (currentWord.Length > 0)
+            words.Add(currentWord.ToString());
+
+        return words.ToArray();
+    }
+
     // Подсчет предложений по разделителям
     static int CountSentences(string text)
     {
