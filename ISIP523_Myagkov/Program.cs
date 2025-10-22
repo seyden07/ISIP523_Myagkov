@@ -65,11 +65,11 @@ void BubbleSort(string[] productOrService, int[] cost, int quantity)
 while (true)
 {
     Console.WriteLine("\n========= Меню =========");
-Console.WriteLine("1. Вывод данных");
-Console.WriteLine("2. Статистика");
-Console.WriteLine("3. Сортировка по цене");
-Console.WriteLine("4. Конвертация валюты");
-Console.WriteLine("5. Поиск по названию");
+    Console.WriteLine("1. Вывод данных");
+    Console.WriteLine("2. Статистика");
+    Console.WriteLine("3. Сортировка по цене");
+    Console.WriteLine("4. Конвертация валюты");
+    Console.WriteLine("5. Поиск по названию");
     Console.WriteLine("0. Выход");
 
     Console.WriteLine("\nВыберите пункт: ");
@@ -78,7 +78,7 @@ Console.WriteLine("5. Поиск по названию");
     switch (n)
     {
         case 1:
-        output(productOrService, cost, quantity);
+            output(productOrService, cost, quantity);
             break;
         case 2:
             statistics(productOrService, cost, quantity);
@@ -92,5 +92,5 @@ Console.WriteLine("5. Поиск по названию");
             Console.WriteLine("\nТакого варианта нет!");
             break;
     }
-    }
-
+}
+    
