@@ -44,8 +44,3 @@ for (int i = 0; i < 100000; i++)
         break;
     }
 
-    if (n > 5)
-    {
-        Console.WriteLine("Нет такого варианта");
-    }
-}
