@@ -1,3 +1,33 @@
+using System;
+using System.Collections.Generic;
+using System.Security.Authentication;
+
+class Program
+{
+    static void Add(List<Product> products)
+    {
+        Console.WriteLine("\nВведите данные о товаре:");
+
+
+        int maxId = 0;
+        foreach (var product in products)
+        {
+            if (product.Id > maxId)
+            {
+                maxId = product.Id;
+            }
+        }
+        int id = maxId + 1;
+
+        Console.Write("\nНазвание: ");
+        string name = Console.ReadLine();
+
+        Console.Write("\nЦена: ");
+        int price = Convert.ToInt32(Console.ReadLine());
+
+        Console.Write("\nКоличество: ");
+        int quantity = Convert.ToInt32(Console.ReadLine());
+
         Console.Write("\nВ наличии (true/false): ");
         bool isAvailable = Convert.ToBoolean(Console.ReadLine());
 
@@ -27,12 +57,57 @@
 
     static void Remove(List<Product> products)
     {
+        if (products.Count == 0)
+        {
+            Console.WriteLine("\nСписок товаров пуст!");
+            return;
+        }
 
+        Console.WriteLine("\nСписок товаров:");
+        foreach (var product in products)
+        {
+            Console.WriteLine($"\nID: {product.Id}, Название: {product.Name}");
+        }
+
+        Console.Write("\nВведите ID товара для удаления: ");
+        int idToRemove = Convert.ToInt32(Console.ReadLine());
+
+        Product productToRemove = null;
+        foreach (var product in products)
+        {
+            if (product.Id == idToRemove)
+            {
+                productToRemove = product;
+                break;
+            }
+    }
+
+        if (productToRemove != null)
+        {
+            products.Remove(productToRemove);
+            Console.WriteLine($"\nТовар '{productToRemove.Name}' удален!");
+        }
+        else
+        {
+            Console.WriteLine("\nТовар с таким ID не найден!");
+        }
     }
 
     static void ShowAllProducts(List<Product> products)
     {
+        if (products.Count == 0)
+        {
+            Console.WriteLine("\nТоваров нет!");
+            return;
+        }
 
+        Console.WriteLine("\n Все товары");
+        foreach (var product in products)
+        {
+            Console.WriteLine($"\nID: {product.Id}, Название: {product.Name}, " +
+                            $"\nЦена: {product.Price}, Количество: {product.Quantity}, " +
+                            $"\nВ наличии: {product.IsAvailable}, Категория: {product.Category}");
+        }
     }
 
     static void Order(List<Product> products)
@@ -49,8 +124,6 @@
     {
 
     }
-
-
 
     static void Main(string[] args)
     {
