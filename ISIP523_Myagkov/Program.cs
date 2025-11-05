@@ -73,6 +73,89 @@ class Program
             return !string.IsNullOrWhiteSpace(str);
         }
 
+        public bool AddBook(string title, string author, Genre genre, int year, decimal price)
+        {
+            if (!IsValidString(title) || !IsValidString(author) || !IsValidYear(year) || !IsValidPrice(price))
+            {
+                return false;
+            }
+
+            books.Add(new Book
+            {
+                Title = title.Trim(),
+                Author = author.Trim(),
+                Genre = genre,
+                Year = year,
+                Price = price
+            });
+            return true;
+        }
+
+
+        public bool RemoveBook(int id)
+        {
+            var book = books.FirstOrDefault(b => b.Id == id);
+            if (book != null)
+            {
+                books.Remove(book);
+                return true;
+            }
+            return false;
+        }
+
+
+        public List<Book> FindByTitle(string title)
+        {
+            return books.Where(b => b.Title.Contains(title, StringComparison.OrdinalIgnoreCase)).ToList();
+        }
+
+
+        public List<Book> FindByAuthor(string author)
+        {
+            return books.Where(b => b.Author.Contains(author, StringComparison.OrdinalIgnoreCase)).ToList();
+        }
+
+
+        public List<Book> FindByGenre(Genre genre)
+        {
+            return books.Where(b => b.Genre == genre).ToList();
+        }
+
+
+        public List<Book> SortByTitle()
+        {
+            return books.OrderBy(b => b.Title).ToList();
+        }
+
+
+        public List<Book> SortByYear()
+        {
+            return books.OrderBy(b => b.Year).ToList();
+        }
+
+
+        public Book GetMostExpensiveBook()
+        {
+            return books.OrderByDescending(b => b.Price).FirstOrDefault();
+        }
+
+        public Book GetCheapestBook()
+        {
+            return books.OrderBy(b => b.Price).FirstOrDefault();
+        }
+
+
+        public Dictionary<string, int> GetBooksByAuthor()
+        {
+            return books.GroupBy(b => b.Author)
+                       .ToDictionary(g => g.Key, g => g.Count());
+        }
+
+        public List<Book> GetAllBooks()
+        {
+            return new List<Book>(books);
+        }
+
     }
 
 }
