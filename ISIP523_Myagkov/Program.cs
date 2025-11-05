@@ -181,6 +181,102 @@ class Program
         }
     }
 
+    static void EnrollStudentInCourse()
+    {
+        Console.WriteLine("\n===== Запись студента на курс =====");
+        ShowAllStudents();
+        ShowAllCourses();
+
+        Console.Write("\nВведите ID студента: ");
+        int studentId = int.Parse(Console.ReadLine());
+        Console.Write("\nВведите ID курса: ");
+        int courseId = int.Parse(Console.ReadLine());
+
+        Student student = FindStudentById(studentId);
+        Course course = FindCourseById(courseId);
+
+        if (student == null)
+        {
+            Console.WriteLine("\nСтудент не найден!");
+            return;
+        }
+
+        if (course == null)
+        {
+            Console.WriteLine("\nКурс не найден!");
+            return;
+        }
+
+        student.EnrollInCourse(course);
+        Console.WriteLine($"\nСтудент {student.FIO} записан на курс {course.CourseName}");
+    }
+
+    static void AssignTeacherToCourse()
+    {
+        Console.WriteLine("\n===== Назначение Преподавателя =====");
+        ShowAllTeachers();
+        ShowAllCourses();
+
+        Console.Write("\nВведите ID преподавателя: ");
+        int teacherId = int.Parse(Console.ReadLine());
+        Console.Write("\nВведите ID курса: ");
+        int courseId = int.Parse(Console.ReadLine());
+
+        Teacher teacher = FindTeacherById(teacherId);
+        Course course = FindCourseById(courseId);
+
+        if (teacher == null)
+        {
+            Console.WriteLine("\nПреподаватель не найден!");
+            return;
+        }
+
+        if (course == null)
+        {
+            Console.WriteLine("\nКурс не найден!");
+            return;
+        }
+
+        course.AssignTeacher(teacher);
+        Console.WriteLine($"\nПреподаватель {teacher.FIO} назначен на курс {course.CourseName}");
+    }
+
+    static Student FindStudentById(int id)
+    {
+        foreach (var student in students)
+        {
+            if (student.StudentID == id)
+            {
+                return student;
+            }
+        }
+        return null;
+    }
+
+    static Teacher FindTeacherById(int id)
+    {
+        foreach (var teacher in teachers)
+        {
+            if (teacher.TeacherID == id)
+            {
+                return teacher;
+            }
+        }
+        return null;
+    }
+
+    static Course FindCourseById(int id)
+    {
+        foreach (var course in courses)
+        {
+            if (course.CourseID == id)
+            {
+                return course;
+            }
+        }
+        return null;
+    }
+
 
 }
 
