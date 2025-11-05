@@ -331,6 +331,47 @@ class Program
         return null;
     }
 
+    static void AddTestData()
+    {
+        // Студенты
+        students.Add(new Student("Васильева Анна Дмитриевна", 22, new DateOnly(2001, 11, 7), "Ж", 1));
+        students.Add(new Student("Морозов Дмитрий Алексеевич", 20, new DateOnly(2003, 4, 18), "М", 2));
+        students.Add(new Student("Соколова Екатерина Игоревна", 19, new DateOnly(2004, 9, 3), "Ж", 3));
+        students.Add(new Student("Николаев Артём Сергеевич", 21, new DateOnly(2002, 6, 25), "М", 4));
+
+        // Преподаватели
+        teachers.Add(new Teacher("Павлова Ольга Михайловна", 52, new DateOnly(1971, 2, 14), "Ж", 1, 25));
+        teachers.Add(new Teacher("Иванов Сергей Владимирович", 47, new DateOnly(1976, 10, 8), "М", 2, 18));
+        teachers.Add(new Teacher("Фёдорова Ирина Александровна", 39, new DateOnly(1984, 5, 30), "Ж", 3, 12));
+
+        // Курсы
+        courses.Add(new Course(1, "Алгоритмы и структуры данных", 2025));
+        courses.Add(new Course(2, "Машинное обучение", 2025));
+        courses.Add(new Course(3, "Мобильная разработка", 2025));
+        courses.Add(new Course(4, "Кибербезопасность", 2025));
+
+        // Назначение преподавателей на курсы
+        courses[0].AssignTeacher(teachers[0]);
+        courses[1].AssignTeacher(teachers[2]);
+        courses[2].AssignTeacher(teachers[1]);
+        courses[3].AssignTeacher(teachers[0]);
+
+        // Зачисление студентов на курсы
+        students[0].EnrollInCourse(courses[0]);
+        students[0].EnrollInCourse(courses[3]);
+        students[1].EnrollInCourse(courses[1]);
+        students[1].EnrollInCourse(courses[2]);
+        students[2].EnrollInCourse(courses[0]);
+        students[2].EnrollInCourse(courses[1]);
+        students[3].EnrollInCourse(courses[2]);
+        students[3].EnrollInCourse(courses[3]);
+
+        nextStudentId = 5;
+        nextTeacherId = 4;
+        nextCourseId = 5;
+    }
+
+
 
 }
 
