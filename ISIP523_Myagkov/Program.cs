@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -8,12 +8,12 @@ class Program
     enum Genre
     {
         Fantasy = 1,
-    ScienceFiction,
-    Mystery,
-    Romance,
+        ScienceFiction,
+        Mystery,
+        Romance,
         Horror,
-    Biography,
-    History
+        Biography,
+        History
     }
 
     class Book
@@ -21,19 +21,19 @@ class Program
         private static int nextId = 1;
 
         public int Id { get; private set; }
-    public string Title { get; set; }
-    public string Author { get; set; }
-    public Genre Genre { get; set; }
-    public int Year { get; set; }
-    public decimal Price { get; set; }
+        public string Title { get; set; }
+        public string Author { get; set; }
+        public Genre Genre { get; set; }
+        public int Year { get; set; }
+        public decimal Price { get; set; }
 
         public Book()
         {
             Id = nextId++;
-			}
+        }
 
         public override string ToString()
-{
+        {
             return $"ID: {Id}, Название: \"{Title}\", Автор: {Author}, Жанр: {Genre}, Год: {Year}, Цена: {Price:C}";
         }
     }
@@ -368,7 +368,7 @@ class Program
                 default:
                     Console.WriteLine("\nНеверный выбор.");
                     return;
-    }
+            }
 
             if (results.Count > 0)
             {
@@ -377,7 +377,7 @@ class Program
                 {
                     Console.WriteLine(book);
                 }
-}
+            }
             else
             {
                 Console.WriteLine("\nКниги по заданным критериям не найдены.");
