@@ -75,7 +75,7 @@ class Program
                     exit = true;
                     break;
                 default:
-                    Console.WriteLine("\bНеверный выбор!");
+                    Console.WriteLine("\nНет такого варианта");
                     break;
             }
 
@@ -85,6 +85,58 @@ class Program
                 Console.ReadKey();
             }
         }
+    }
+
+    static void AddStudent()
+    {
+        Console.WriteLine("\n===== Добавление студента =====");
+        Console.Write("\nФИО: ");
+        string fio = Console.ReadLine();
+        Console.Write("\nВозраст: ");
+        int age = int.Parse(Console.ReadLine());
+        Console.Write("\nДата рождения (гггг-мм-дд): ");
+        DateOnly birthday = DateOnly.Parse(Console.ReadLine());
+        Console.Write("\nПол: ");
+        string gender = Console.ReadLine();
+
+        Student student = new Student(fio, age, birthday, gender, nextStudentId);
+        students.Add(student);
+        nextStudentId++;
+        Console.WriteLine($"\nСтудент успешно добавлен! ID: {student.StudentID}");
+    }
+
+    static void AddTeacher()
+    {
+        Console.WriteLine("\n===== Добавление Преподавателя =====");
+        Console.Write("\nФИО: ");
+        string fio = Console.ReadLine();
+        Console.Write("\nВозраст: ");
+        int age = int.Parse(Console.ReadLine());
+        Console.Write("\nДата рождения (гггг-мм-дд): ");
+        DateOnly birthday = DateOnly.Parse(Console.ReadLine());
+        Console.Write("\nПол: ");
+        string gender = Console.ReadLine();
+        Console.Write("\nСтаж (лет): ");
+        int expYear = int.Parse(Console.ReadLine());
+
+        Teacher teacher = new Teacher(fio, age, birthday, gender, nextTeacherId, expYear);
+        teachers.Add(teacher);
+        nextTeacherId++;
+        Console.WriteLine($"\nПреподаватель успешно добавлен! ID: {teacher.TeacherID}");
+    }
+
+    static void AddCourse()
+    {
+        Console.WriteLine("\n===== Создание курса =====");
+        Console.Write("\nНазвание курса: ");
+        string courseName = Console.ReadLine();
+        Console.Write("\nГод курса: ");
+        int courseYear = int.Parse(Console.ReadLine());
+
+        Course course = new Course(nextCourseId, courseName, courseYear);
+        courses.Add(course);
+        nextCourseId++;
+        Console.WriteLine($"\nКурс успешно создан! ID: {course.CourseID}");
     }
 
 
