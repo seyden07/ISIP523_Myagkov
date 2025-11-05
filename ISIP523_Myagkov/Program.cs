@@ -139,6 +139,48 @@ class Program
         Console.WriteLine($"\nКурс успешно создан! ID: {course.CourseID}");
     }
 
+    static void ShowAllStudents()
+    {
+        Console.WriteLine("\n===== Все студенты =====");
+        if (students.Count == 0)
+        {
+            Console.WriteLine("\nСтудентов нет");
+            return;
+        }
+        foreach (var student in students)
+        {
+            Console.WriteLine(student.GetInfo());
+        }
+    }
+
+    static void ShowAllTeachers()
+    {
+        Console.WriteLine("\n===== Все преподаватели =====");
+        if (teachers.Count == 0)
+        {
+            Console.WriteLine("\nПреподавателей нет");
+            return;
+        }
+        foreach (var teacher in teachers)
+        {
+            Console.WriteLine(teacher.GetInfo());
+        }
+    }
+
+    static void ShowAllCourses()
+    {
+        Console.WriteLine("\n===== Все курсы =====");
+        if (courses.Count == 0)
+        {
+            Console.WriteLine("\nКурсов нет");
+            return;
+        }
+        foreach (var course in courses)
+        {
+            Console.WriteLine(course.GetInfo());
+        }
+    }
+
 
 }
 
