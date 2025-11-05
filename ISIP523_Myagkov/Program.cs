@@ -325,6 +325,144 @@ class Program
             }
         }
 
+        private void FindBooks()
+        {
+            Console.WriteLine("\n===== Поиск книг =====");
+            Console.WriteLine("1. Поиск по названию");
+            Console.WriteLine("2. Поиск по автору");
+            Console.WriteLine("3. Поиск по жанру");
+            Console.Write("\nВыберите тип поиска: ");
+
+            string searchType = Console.ReadLine();
+            List<Book> results = new List<Book>();
+
+            switch (searchType)
+            {
+                case "1":
+                    Console.Write("\nВведите название для поиска: ");
+                    string title = Console.ReadLine();
+                    results = library.FindByTitle(title);
+                    break;
+                case "2":
+                    Console.Write("\nВведите автора для поиска: ");
+                    string author = Console.ReadLine();
+                    results = library.FindByAuthor(author);
+                    break;
+                case "3":
+                    Console.WriteLine("\nДоступные жанры:");
+                    foreach (Genre genre in Enum.GetValues(typeof(Genre)))
+                    {
+                        Console.WriteLine($"  {(int)genre} - {genre}");
+                    }
+                    Console.Write("\nВыберите жанр для поиска: ");
+                    if (Enum.TryParse(Console.ReadLine(), out Genre genreSearch) && Enum.IsDefined(typeof(Genre), genreSearch))
+                    {
+                        results = library.FindByGenre(genreSearch);
+                    }
+                    else
+                    {
+                        Console.WriteLine("\nОшибка: Неверный выбор жанра.");
+                        return;
+                    }
+                    break;
+                default:
+                    Console.WriteLine("\nНеверный выбор.");
+                    return;
     }
 
+            if (results.Count > 0)
+            {
+                Console.WriteLine($"\n=== Найдено книг: {results.Count} ===");
+                foreach (var book in results)
+                {
+                    Console.WriteLine(book);
+                }
+}
+            else
+            {
+                Console.WriteLine("\nКниги по заданным критериям не найдены.");
+            }
+        }
+
+        private void SortBooks()
+        {
+            Console.WriteLine("\n===== Сортировка книг =====");
+            Console.WriteLine("1. Сортировка по названию");
+            Console.WriteLine("2. Сортировка по году издания");
+            Console.Write("\nВыберите тип сортировки: ");
+
+            string sortType = Console.ReadLine();
+            List<Book> sortedBooks = new List<Book>();
+
+            switch (sortType)
+            {
+                case "1":
+                    sortedBooks = library.SortByTitle();
+                    Console.WriteLine("\n===== Книги отсортированы по названию =====");
+                    break;
+                case "2":
+                    sortedBooks = library.SortByYear();
+                    Console.WriteLine("\n===== Книги отсортированы по году издания =====");
+                    break;
+                default:
+                    Console.WriteLine("\nНеверный выбор.");
+                    return;
+            }
+
+            foreach (var book in sortedBooks)
+            {
+                Console.WriteLine(book);
+            }
+        }
+
+        private void ShowPriceExtremes()
+        {
+            Console.WriteLine("\n===== Самая дорога и самая дешёвая книга =====");
+
+            var mostExpensive = library.GetMostExpensiveBook();
+            var cheapest = library.GetCheapestBook();
+
+            if (mostExpensive != null)
+            {
+                Console.WriteLine($"\nСамая дорогая книга:");
+                Console.WriteLine(mostExpensive);
+            }
+
+            if (cheapest != null)
+            {
+                Console.WriteLine($"\nСамая дешевая книга:");
+                Console.WriteLine(cheapest);
+            }
+
+            if (mostExpensive == null && cheapest == null)
+            {
+                Console.WriteLine("\nВ библиотеке нет книг.");
+            }
+        }
+
+        private void ShowAuthorStatistics()
+        {
+            Console.WriteLine("\n=== Статистика по авторам ===");
+
+            var authorStats = library.GetBooksByAuthor();
+
+            if (authorStats.Count > 0)
+            {
+                foreach (var stat in authorStats.OrderByDescending(s => s.Value))
+                {
+                    Console.WriteLine($"\nАвтор: {stat.Key}, Количество книг: {stat.Value}");
+                }
+            }
+            else
+            {
+                Console.WriteLine("\nВ библиотеке нет книг.");
+            }
+        }
+    }
+
+    static void Main(string[] args)
+    {
+        LibraryUI ui = new LibraryUI();
+        ui.Run();
+    }
 }
