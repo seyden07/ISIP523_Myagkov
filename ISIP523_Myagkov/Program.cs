@@ -241,6 +241,60 @@ class Program
         Console.WriteLine($"\nПреподаватель {teacher.FIO} назначен на курс {course.CourseName}");
     }
 
+    static void ShowStudentCourses()
+    {
+        Console.WriteLine("\n===== Курсы студента =====");
+        ShowAllStudents();
+        Console.Write("\nВведите ID студента: ");
+        int id = int.Parse(Console.ReadLine());
+
+        Student student = FindStudentById(id);
+        if (student != null)
+        {
+            student.ShowEnrolledCourses();
+        }
+        else
+        {
+            Console.WriteLine("\nСтудент не найден!");
+        }
+    }
+
+    static void ShowCourseStudents()
+    {
+        Console.WriteLine("\n===== Студенты курса =====");
+        ShowAllCourses();
+        Console.Write("\nВведите ID курса: ");
+        int id = int.Parse(Console.ReadLine());
+
+        Course course = FindCourseById(id);
+        if (course != null)
+        {
+            course.ShowEnrolledStudents();
+        }
+        else
+        {
+            Console.WriteLine("\nКурс не найден!");
+        }
+    }
+
+    static void ShowTeacherCourses()
+    {
+        Console.WriteLine("\n===== Курсы Преподавателя =====");
+        ShowAllTeachers();
+        Console.Write("\nВведите ID преподавателя: ");
+        int id = int.Parse(Console.ReadLine());
+
+        Teacher teacher = FindTeacherById(id);
+        if (teacher != null)
+        {
+            teacher.ShowAssignedCourses();
+        }
+        else
+        {
+            Console.WriteLine("\nПреподаватель не найден!");
+        }
+    }
+
     static Student FindStudentById(int id)
     {
         foreach (var student in students)
