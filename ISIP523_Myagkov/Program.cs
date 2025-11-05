@@ -158,4 +158,173 @@ class Program
 
     }
 
+    class LibraryUI
+    {
+        private Library library = new Library();
+
+        public void Run()
+        {
+            library.AddTestData();
+
+            Console.WriteLine("\nДобро пожаловать в систему учета книг библиотеки!");
+
+            bool continueWorking = true;
+            while (continueWorking)
+            {
+                ShowMenu();
+                string choice = Console.ReadLine();
+
+                switch (choice)
+                {
+                    case "1":
+                        ShowAllBooks();
+                        break;
+                    case "2":
+                        AddBook();
+                        break;
+                    case "3":
+                        RemoveBook();
+                        break;
+                    case "4":
+                        FindBooks();
+                        break;
+                    case "5":
+                        SortBooks();
+                        break;
+                    case "6":
+                        ShowPriceExtremes();
+                        break;
+                    case "7":
+                        ShowAuthorStatistics();
+                        break;
+                    case "0":
+                        continueWorking = false;
+                        break;
+                    default:
+                        Console.WriteLine("\nНеверный выбор. Попробуйте снова.");
+                        break;
+                }
+
+                if (continueWorking)
+                {
+                    Console.WriteLine("\nНажмите любую клавишу для продолжения...");
+                    Console.ReadKey();
+                    Console.Clear();
+                }
+            }
+
+            Console.WriteLine("\nПрограмма завершена. Спасибо за использование!");
+        }
+
+        private void ShowMenu()
+        {
+            Console.WriteLine("\n======== Меню ========");
+            Console.WriteLine("1. Показать все книги");
+            Console.WriteLine("2. Добавить книгу");
+            Console.WriteLine("3. Удалить книгу по ID");
+            Console.WriteLine("4. Найти книги");
+            Console.WriteLine("5. Сортировать книги");
+            Console.WriteLine("6. Самая дорогая/дешевая книга");
+            Console.WriteLine("7. Статистика по авторам");
+            Console.WriteLine("0. Выйти");
+            Console.Write("\nВаш выбор: ");
+        }
+
+        private void ShowAllBooks()
+        {
+            var books = library.GetAllBooks();
+            if (books.Count == 0)
+            {
+                Console.WriteLine("\nВ библиотеке нет книг.");
+                return;
+            }
+
+            Console.WriteLine($"\n=== Все книги ({books.Count}) ===");
+            foreach (var book in books)
+            {
+                Console.WriteLine(book);
+            }
+        }
+
+        private void AddBook()
+        {
+            Console.WriteLine("\n=== Добавление новой книги ===");
+
+            try
+            {
+                Console.Write("Введите название книги: ");
+                string title = Console.ReadLine();
+
+                Console.Write("\nВведите автора: ");
+                string author = Console.ReadLine();
+
+                Console.WriteLine("\nДоступные жанры:");
+                foreach (Genre genre in Enum.GetValues(typeof(Genre)))
+                {
+                    Console.WriteLine($"  {(int)genre} - {genre}");
+                }
+                Console.Write("\nВыберите жанр (число): ");
+                if (!Enum.TryParse(Console.ReadLine(), out Genre genreChoice) || !Enum.IsDefined(typeof(Genre), genreChoice))
+                {
+                    Console.WriteLine("\nОшибка: Неверный выбор жанра.");
+                    return;
+                }
+
+                Console.Write("\nВведите год издания: ");
+                if (!int.TryParse(Console.ReadLine(), out int year))
+                {
+                    Console.WriteLine("\nОшибка: Год должен быть числом.");
+                    return;
+                }
+
+                Console.Write("\nВведите цену: ");
+                if (!decimal.TryParse(Console.ReadLine(), out decimal price))
+                {
+                    Console.WriteLine("\nОшибка: Цена должна быть числом.");
+                    return;
+                }
+
+                if (library.AddBook(title, author, genreChoice, year, price))
+                {
+                    Console.WriteLine("\nКнига успешно добавлена!");
+                }
+                else
+                {
+                    Console.WriteLine("\nОшибка: Проверьте корректность введенных данных.");
+                    Console.WriteLine("- Название и автор не должны быть пустыми");
+                    Console.WriteLine("- Год должен быть от 1000 до текущего года");
+                    Console.WriteLine("- Цена не должна быть отрицательной");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"\nОшибка при вводе данных: {ex.Message}");
+            }
+        }
+
+        private void RemoveBook()
+        {
+            Console.WriteLine("\n=== Удаление книги ===");
+            ShowAllBooks();
+
+            Console.Write("Введите ID книги для удаления: ");
+            if (int.TryParse(Console.ReadLine(), out int id))
+            {
+                if (library.RemoveBook(id))
+                {
+                    Console.WriteLine("\nКнига успешно удалена!");
+                }
+                else
+                {
+                    Console.WriteLine("\nКнига с указанным ID не найдена.");
+                }
+            }
+            else
+            {
+                Console.WriteLine("\nОшибка: ID должен быть числом.");
+            }
+        }
+
+    }
+
 }
