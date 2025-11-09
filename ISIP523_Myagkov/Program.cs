@@ -108,7 +108,91 @@ public class Mage : Enemy
 
     public override void SpecialAbility(Player player)
     {
-        Console.WriteLine($"{Name} замораживает вас! Вы пропускаете следующий ход.");
+        Console.WriteLine($"\n{Name} замораживает вас! Вы пропускаете следующий ход.");
+        player.IsFrozen = true;
+    }
+
+    public override bool TrySpecialAbility()
+    {
+        return random.NextDouble() < freezeChance;
+    }
+}
+
+public abstract class BossEnemy : Enemy
+{
+    protected BossEnemy(string name, int baseHealth, int baseAttack, int baseDefense,
+                       double healthMultiplier, double attackMultiplier, double defenseMultiplier)
+        : base(name,
+              (int)(baseHealth * healthMultiplier),
+              (int)(baseAttack * attackMultiplier),
+              (int)(baseDefense * defenseMultiplier))
+    {
+    }
+}
+
+public class VVG : BossEnemy
+{
+    private double critChance = 0.3;
+
+    public VVG() : base("ВВГ", 30, 8, 3, 2.0, 1.5, 1.2) { }
+
+    public override void SpecialAbility(Player player)
+    {
+        int critDamage = (int)(Attack * 2.0);
+        Console.WriteLine($"\n{Name} наносит СУПЕР-критический удар! Урон: {critDamage}");
+        player.TakeDamage(critDamage);
+    }
+
+    public override bool TrySpecialAbility()
+    {
+        return random.NextDouble() < critChance;
+    }
+}
+
+public class Kovalsky : BossEnemy
+{
+    public Kovalsky() : base("Ковальский", 25, 10, 2, 2.5, 1.3, 1.4) { }
+
+    public override void SpecialAbility(Player player)
+    {
+        Console.WriteLine($"\n{Name} полностью игнорирует вашу защиту! Урон: {Attack}");
+        player.TakeDamage(Attack, true);
+    }
+
+    public override bool TrySpecialAbility()
+    {
+        return random.NextDouble() < 0.4;
+    }
+}
+
+public class Archmage : BossEnemy
+{
+    private double freezeChance = 0.35;
+
+    public Archmage() : base("Архимаг C++", 20, 12, 1, 1.8, 1.6, 1.1) { }
+
+    public override void SpecialAbility(Player player)
+    {
+        Console.WriteLine($"\n{Name} накладывает СИЛЬНУЮ заморозку! Вы пропускаете следующий ход.");
+        player.IsFrozen = true;
+    }
+
+    public override bool TrySpecialAbility()
+    {
+        return random.NextDouble() < freezeChance;
+    }
+}
+
+public class Pestov : BossEnemy
+{
+    private double freezeChance = 0.4;
+
+    public Pestov() : base("Пестов С--", 25, 10, 2, 1.3, 1.8, 0.6) { }
+
+    public override void SpecialAbility(Player player)
+    {
+        Console.WriteLine($"\n{Name} игнорирует защиту И замораживает вас!");
+        player.TakeDamage(Attack, true);
         player.IsFrozen = true;
     }
 
