@@ -449,3 +449,95 @@ public class Game
             Console.WriteLine("\nВы оставили доспехи в сундуке.");
         }
     }
+
+    private void FightEnemy(Enemy enemy)
+    {
+        Console.WriteLine($"\nВы встретили {enemy.Name}!");
+        Console.WriteLine($"Здоровье врага: {enemy.Health}");
+
+        while (enemy.Health > 0 && player.Health > 0)
+        {
+            PlayerTurn(enemy);
+            if (enemy.Health <= 0) break;
+
+            EnemyTurn(enemy);
+            if (player.Health <= 0) break;
+        }
+
+        if (enemy.Health <= 0)
+        {
+            Console.WriteLine($"\nВы победили {enemy.Name}!");
+        }
+    }
+
+    private void PlayerTurn(Enemy enemy)
+    {
+        Console.WriteLine("\n--- Ваш ход ---");
+        Console.WriteLine("1. Атаковать");
+        Console.WriteLine("2. Защищаться");
+        Console.Write("Выберите действие: ");
+
+        string choice = Console.ReadLine();
+
+        switch (choice)
+        {
+            case "1":
+                int playerDamage = player.CalculateAttack();
+                enemy.Health -= playerDamage;
+                Console.WriteLine($"\nВы атакуете {enemy.Name} и наносите {playerDamage} урона!");
+                Console.WriteLine($"\nЗдоровье {enemy.Name}: {Math.Max(0, enemy.Health)}");
+                break;
+
+            case "2":
+                Console.WriteLine("\nВы готовитесь к защите...");
+                break;
+
+            default:
+                Console.WriteLine("\nНеверный выбор, вы пропускаете ход!");
+                break;
+        }
+    }
+
+    private void EnemyTurn(Enemy enemy)
+    {
+        Console.WriteLine($"\n--- Ход {enemy.Name} ---");
+
+        bool isDefending = false;
+        int blockAmount = 0;
+
+
+        if (enemy.TrySpecialAbility())
+        {
+            enemy.SpecialAbility(player);
+        }
+        else
+        {
+            int enemyDamage = enemy.Attack;
+
+            if (isDefending)
+            {
+                if (player.TryDodge())
+                {
+                    Console.WriteLine("\nВы уворачиваетесь от атаки!");
+                    return;
+                }
+                else
+                {
+                    blockAmount = player.CalculateBlock();
+                    enemyDamage = Math.Max(1, enemyDamage - blockAmount);
+                    Console.WriteLine($"\nВы блокируете {blockAmount} урона!");
+                }
+            }
+
+            player.TakeDamage(enemyDamage);
+        }
+    }
+
+    private void GameOver()
+    {
+        Console.WriteLine("\n * * * ИГРА ОКОНЧЕНА! * * * ");
+        Console.WriteLine($"Вы продержались {player.TurnCount} ходов");
+        player.DisplayStatus();
+        gameRunning = false;
+    }
+}
