@@ -391,3 +391,61 @@ public class Game
             }
         }
     }
+
+    private void FindChest()
+    {
+        Console.WriteLine("\nВы нашли сундук!");
+        Item item = ItemGenerator.GenerateRandomItem();
+
+        if (item is HealthPotion potion)
+        {
+            Console.WriteLine("\nВы нашли Зелье здоровья!");
+            potion.Use(player);
+        }
+        else if (item is Weapon weapon)
+        {
+            HandleWeaponChoice(weapon);
+        }
+        else if (item is Armor armor)
+        {
+            HandleArmorChoice(armor);
+        }
+    }
+
+    private void HandleWeaponChoice(Weapon newWeapon)
+    {
+        Console.WriteLine($"\nВы нашли новое оружие: {newWeapon.Name}");
+        Console.WriteLine($"Атака: {newWeapon.Attack} (текущее: {player.CurrentWeapon.Attack})");
+
+        Console.Write("\nВзять новое оружие? (y/n): ");
+        string choice = Console.ReadLine()?.ToLower();
+
+        if (choice == "y" || choice == "д")
+        {
+            player.CurrentWeapon = newWeapon;
+            Console.WriteLine($"\nВы экипировали: {newWeapon.Name}");
+        }
+        else
+        {
+            Console.WriteLine("\nВы оставили оружие в сундуке.");
+        }
+    }
+
+    private void HandleArmorChoice(Armor newArmor)
+    {
+        Console.WriteLine($"\nВы нашли новые доспехи: {newArmor.Name}");
+        Console.WriteLine($"Защита: {newArmor.Defense} (текущая: {player.CurrentArmor.Defense})");
+
+        Console.Write("\nВзять новые доспехи? (y/n): ");
+        string choice = Console.ReadLine()?.ToLower();
+
+        if (choice == "y" || choice == "д")
+        {
+            player.CurrentArmor = newArmor;
+            Console.WriteLine($"\nВы экипировали: {newArmor.Name}");
+        }
+        else
+        {
+            Console.WriteLine("\nВы оставили доспехи в сундуке.");
+        }
+    }
