@@ -316,3 +316,78 @@ public class HealthPotion : Item
         player.Heal();
     }
 }
+
+public class Game
+{
+    private Player player;
+    private Random random;
+    private bool gameRunning;
+
+    private readonly Enemy[] normalEnemies;
+    private readonly BossEnemy[] bossEnemies;
+
+    public Game()
+    {
+        player = new Player();
+        random = new Random();
+        gameRunning = true;
+
+        normalEnemies = new Enemy[]
+        {
+            new Goblin(),
+            new Skeleton(),
+            new Mage()
+        };
+
+        bossEnemies = new BossEnemy[]
+        {
+            new VVG(),
+            new Kovalsky(),
+            new Archmage(),
+            new Pestov()
+        };
+    }
+
+    public void Start()
+    {
+        Console.WriteLine("\nДобро пожаловать в текстовый рогалик!");
+        Console.WriteLine("Ваша цель - выживать как можно дольше...\n");
+
+        while (gameRunning && player.Health > 0)
+        {
+            player.TurnCount++;
+            Console.WriteLine($"\n--- Ход {player.TurnCount} ---");
+
+            if (player.IsFrozen)
+            {
+                Console.WriteLine("\nВы заморожены и пропускаете ход!");
+                player.IsFrozen = false;
+                continue;
+            }
+
+            if (player.TurnCount % 10 == 0)
+            {
+                Console.WriteLine("\n * * * ПОЯВИЛСЯ БОСС! * * *");
+                Enemy boss = bossEnemies[random.Next(bossEnemies.Length)];
+                FightEnemy(boss);
+            }
+            else
+            {
+                if (random.Next(2) == 0)
+                {
+                    FindChest();
+                }
+                else
+                {
+                    Enemy enemy = normalEnemies[random.Next(normalEnemies.Length)];
+                    FightEnemy(enemy);
+                }
+            }
+
+            if (player.Health <= 0)
+            {
+                GameOver();
+                break;
+            }
+        }
+    }
