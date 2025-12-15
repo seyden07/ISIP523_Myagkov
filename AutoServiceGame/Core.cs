@@ -541,3 +541,78 @@ namespace AutoServiceSimulation
 
             return (false, "Ошибка при обработке заказа", 0);
         }
+
+        public (bool success, string message) PurchaseParts(int partId, int quantity)
+        {
+            var parts = _repository.GetAllParts();
+            var part = parts.FirstOrDefault(p => p.Id == partId);
+            if (part == null) return (false, "Деталь не найдена");
+
+            if (quantity <= 0) return (false, "Количество должно быть положительным");
+
+            var totalCost = part.Price * quantity;
+            var gameState = _repository.GetCurrentGameState();
+
+            if (gameState.Balance < totalCost)
+                return (false, $"Недостаточно средств. Нужно: {totalCost:C}, есть: {gameState.Balance:C}");
+
+            gameState.Balance -= totalCost;
+            _repository.UpdateBalance(gameState.Balance);
+
+            var deliveryDay = gameState.DayNumber + DELIVERY_DELAY;
+            _repository.CreatePurchaseOrder(part, quantity, totalCost, deliveryDay);
+
+            return (true, $"Заказ создан. Доставка через {DELIVERY_DELAY} дня(ей). Стоимость: {totalCost:C}");
+        }
+
+        public void ProcessDeliveries()
+        {
+            var gameState = _repository.GetCurrentGameState();
+            var pendingOrders = _repository.GetPendingPurchaseOrders();
+
+            foreach (var order in pendingOrders.Where(o => o.DeliveryDay <= gameState.DayNumber))
+            {
+                _repository.UpdateInventory(order.Part.Id, order.Quantity);
+                _repository.DeliverPurchaseOrder(order.Id);
+            }
+        }
+
+        public void NextDay()
+        {
+            var gameState = _repository.GetCurrentGameState();
+            _repository.UpdateDay(gameState.DayNumber + 1);
+            ProcessDeliveries();
+        }
+
+        public string GetStatistics()
+        {
+            var gameState = _repository.GetCurrentGameState();
+            if (gameState == null) return "Статистика недоступна";
+
+            return $@"=== СТАТИСТИКА ===
+День: {gameState.DayNumber}
+Баланс: {gameState.Balance:C}
+Всего клиентов: {gameState.TotalCustomers}
+Успешных ремонтов: {gameState.SuccessfulRepairs}
+Неудачных ремонтов: {gameState.FailedRepairs}
+Отказов: {gameState.Refusals}
+Прибыль: {gameState.Profit:C}
+==================";
+        }
+
+        public List<Part> GetAvailableParts()
+        {
+            return _repository.GetAllParts();
+        }
+
+        public List<InventoryItem> GetCurrentInventory()
+        {
+            return _repository.GetInventory();
+        }
+
+        public GameState GetGameState()
+        {
+            return _repository.GetCurrentGameState();
+        }
+    }
+}
