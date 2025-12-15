@@ -117,4 +117,126 @@ namespace AutoServiceSimulation
         void UpdateStatistics(int successful, int failed, int refusals);
         void AddCustomer();
     }
+
+    public class DatabaseRepository : IPartRepository, IOrderRepository, IGameStateRepository
+    {
+        private readonly string _connectionString;
+
+        public DatabaseRepository(string connectionString)
+        {
+            _connectionString = connectionString;
+        }
+
+        // IPartRepository implementation
+        public List<Part> GetAllParts()
+        {
+            var parts = new List<Part>();
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                connection.Open();
+                var command = new SqlCommand("SELECT * FROM Parts ORDER BY Name", connection);
+                using (var reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        parts.Add(new Part(
+                            id: (int)reader["Id"],
+                            name: (string)reader["Name"],
+                            price: (decimal)reader["Price"],
+                            category: (string)reader["Category"],
+                            isCritical: (bool)reader["IsCritical"]
+                        ));
+                    }
+                }
+            }
+            return parts;
+        }
+
+        public List<InventoryItem> GetInventory()
+        {
+            var inventory = new List<InventoryItem>();
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                connection.Open();
+                var sql = @"
+                    SELECT i.Id, i.Quantity, i.ReservedQuantity, 
+                           p.Id as PartId, p.Name, p.Price, p.Category, p.IsCritical
+                    FROM Inventory i
+                    INNER JOIN Parts p ON i.PartId = p.Id
+                    WHERE i.Quantity > 0";
+
+                var command = new SqlCommand(sql, connection);
+                using (var reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        var part = new Part(
+                            id: (int)reader["PartId"],
+                            name: (string)reader["Name"],
+                            price: (decimal)reader["Price"],
+                            category: (string)reader["Category"],
+                            isCritical: (bool)reader["IsCritical"]
+                        );
+
+                        inventory.Add(new InventoryItem
+                        {
+                            Id = (int)reader["Id"],
+                            Part = part,
+                            Quantity = (int)reader["Quantity"],
+                            ReservedQuantity = (int)reader["ReservedQuantity"]
+                        });
+                    }
+                }
+            }
+            return inventory;
+        }
+
+        public bool UpdateInventory(int partId, int quantity)
+        {
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                connection.Open();
+                var sql = @"UPDATE Inventory SET Quantity = Quantity + @Quantity WHERE PartId = @PartId";
+                var command = new SqlCommand(sql, connection);
+                command.Parameters.AddWithValue("@Quantity", quantity);
+                command.Parameters.AddWithValue("@PartId", partId);
+                return command.ExecuteNonQuery() > 0;
+            }
+        }
+
+        public bool ReservePart(int partId, int quantity)
+        {
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                connection.Open();
+                var sql = @"
+                    UPDATE Inventory 
+                    SET ReservedQuantity = ReservedQuantity + @Quantity
+                    WHERE PartId = @PartId 
+                    AND (Quantity - ReservedQuantity) >= @Quantity";
+
+                var command = new SqlCommand(sql, connection);
+                command.Parameters.AddWithValue("@Quantity", quantity);
+                command.Parameters.AddWithValue("@PartId", partId);
+                return command.ExecuteNonQuery() > 0;
+            }
+        }
+
+        public bool UsePart(int partId, int quantity)
+        {
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                connection.Open();
+                var sql = @"
+                    UPDATE Inventory 
+                    SET Quantity = Quantity - @Quantity,
+                        ReservedQuantity = ReservedQuantity - @Quantity
+                    WHERE PartId = @PartId 
+                    AND ReservedQuantity >= @Quantity";
+
+                var command = new SqlCommand(sql, connection);
+                command.Parameters.AddWithValue("@Quantity", quantity);
+                command.Parameters.AddWithValue("@PartId", partId);
+                return command.ExecuteNonQuery() > 0;
+            }
 }
