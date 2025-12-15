@@ -85,3 +85,69 @@ namespace AutoServiceSimulation
                 }
             }
         }
+
+        static void ShowHeader(AutoService service)
+        {
+            var state = service.GetGameState();
+            if (state != null)
+            {
+                Console.WriteLine($"День: {state.DayNumber} | Баланс: {state.Balance:C} | Прибыль: {state.Profit:C}");
+                Console.WriteLine(new string('=', 50));
+            }
+        }
+
+        static void HandleNewCustomer(AutoService service)
+        {
+            try
+            {
+                Console.Clear();
+                Console.WriteLine("=== НОВЫЙ КЛИЕНТ ===");
+
+                var (customer, requestedPart, repairCost) = service.GenerateCustomer();
+
+                Console.WriteLine($"\nКлиент: {customer.Name}");
+                Console.WriteLine($"Автомобиль: {customer.CarModel}");
+                Console.WriteLine($"Поломка: {requestedPart.Name}");
+                Console.WriteLine($"Категория: {requestedPart.Category}");
+                Console.WriteLine($"Стоимость ремонта: {repairCost:C}");
+                Console.WriteLine($"\nЦена детали: {requestedPart.Price:C}");
+                Console.WriteLine($"Ваша прибыль: {repairCost - requestedPart.Price:C}");
+
+                Console.WriteLine("\nВаши действия:");
+                Console.WriteLine("1. Принять заказ");
+                Console.WriteLine("2. Отказать");
+                Console.Write("Выберите: ");
+
+                var choice = Console.ReadLine();
+
+                if (choice == "1")
+                {
+                    var result = service.ProcessRepair(customer, requestedPart, repairCost);
+
+                    Console.WriteLine($"\n{result.message}");
+
+                    if (result.penalty > 0)
+                    {
+                        Console.WriteLine($"Списано штрафа: {result.penalty:C}");
+                    }
+                }
+                else
+                {
+                    var penalty = requestedPart.Price * 0.1m;
+                    var state = service.GetGameState();
+                    if (state != null)
+                    {
+                        state.Balance -= penalty;
+                    }
+                    Console.WriteLine($"\nВы отказали клиенту. Штраф: {penalty:C}");
+                }
+
+                Console.WriteLine("\nНажмите любую клавишу для продолжения...");
+                Console.ReadKey();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"\nОшибка: {ex.Message}");
+                Console.ReadKey();
+            }
+        }
