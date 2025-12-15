@@ -326,3 +326,63 @@ namespace AutoServiceSimulation
             }
             return orders;
         }
+
+        public int CreatePurchaseOrder(Part part, int quantity, decimal totalCost, int deliveryDay)
+        {
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                connection.Open();
+                var sql = @"
+                    INSERT INTO PurchaseOrders (PartId, Quantity, TotalCost, DeliveryDay, Status) 
+                    VALUES (@PartId, @Quantity, @TotalCost, @DeliveryDay, 'Pending');
+                    SELECT CAST(SCOPE_IDENTITY() as int)";
+
+                var command = new SqlCommand(sql, connection);
+                command.Parameters.AddWithValue("@PartId", part.Id);
+                command.Parameters.AddWithValue("@Quantity", quantity);
+                command.Parameters.AddWithValue("@TotalCost", totalCost);
+                command.Parameters.AddWithValue("@DeliveryDay", deliveryDay);
+
+                return (int)command.ExecuteScalar();
+            }
+        }
+
+        public bool DeliverPurchaseOrder(int orderId)
+        {
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                connection.Open();
+                var sql = "UPDATE PurchaseOrders SET Status = 'Delivered' WHERE Id = @Id";
+                var command = new SqlCommand(sql, connection);
+                command.Parameters.AddWithValue("@Id", orderId);
+                return command.ExecuteNonQuery() > 0;
+            }
+        }
+
+        public GameState GetCurrentGameState()
+        {
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                connection.Open();
+                var sql = "SELECT TOP 1 * FROM GameStates ORDER BY Id DESC";
+                var command = new SqlCommand(sql, connection);
+
+                using (var reader = command.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        return new GameState
+                        {
+                            Id = (int)reader["Id"],
+                            Balance = (decimal)reader["Balance"],
+                            DayNumber = (int)reader["DayNumber"],
+                            TotalCustomers = (int)reader["TotalCustomers"],
+                            SuccessfulRepairs = (int)reader["SuccessfulRepairs"],
+                            FailedRepairs = (int)reader["FailedRepairs"],
+                            Refusals = (int)reader["Refusals"]
+                        };
+                    }
+                }
+            }
+            return null;
+        }
