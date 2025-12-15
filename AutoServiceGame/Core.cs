@@ -91,4 +91,30 @@ namespace AutoServiceSimulation
         public int Refusals { get; set; }
         public decimal Profit => Balance - 10000;
     }
+    public interface IPartRepository
+    {
+        List<Part> GetAllParts();
+        List<InventoryItem> GetInventory();
+        bool UpdateInventory(int partId, int quantity);
+        bool ReservePart(int partId, int quantity);
+        bool UsePart(int partId, int quantity);
+        int GetAvailableQuantity(int partId);
+    }
+
+    public interface IOrderRepository
+    {
+        int CreateRepairOrder(Customer customer, Part requestedPart, decimal repairCost);
+        List<PurchaseOrder> GetPendingPurchaseOrders();
+        int CreatePurchaseOrder(Part part, int quantity, decimal totalCost, int deliveryDay);
+        bool DeliverPurchaseOrder(int orderId);
+    }
+
+    public interface IGameStateRepository
+    {
+        GameState GetCurrentGameState();
+        bool UpdateBalance(decimal newBalance);
+        bool UpdateDay(int newDay);
+        void UpdateStatistics(int successful, int failed, int refusals);
+        void AddCustomer();
+    }
 }
