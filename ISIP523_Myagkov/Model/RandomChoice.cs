@@ -10,12 +10,12 @@
         }
 
         public static int Next(int minValue, int maxValue)
-{
+        {
             return random.Next(minValue, maxValue);
         }
 
         public static double NextDouble()
-    {
+        {
             return random.NextDouble();
         }
     }
