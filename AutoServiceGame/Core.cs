@@ -442,3 +442,102 @@ namespace AutoServiceSimulation
             }
         }
     }
+
+    public class AutoService
+    {
+        private readonly DatabaseRepository _repository;
+        private readonly Random _random = new Random();
+
+        private const decimal WORK_COST_MULTIPLIER = 1.5m;
+        private const decimal PENALTY_MULTIPLIER = 2.0m;
+        private const decimal REFUSAL_PENALTY_MULTIPLIER = 0.1m;
+        private const int DELIVERY_DELAY = 2;
+
+        private readonly string[] _customerNames = { "Иван Петров", "Анна Смирнова", "Сергей Иванов", "Ольга Кузнецова" };
+        private readonly string[] _carModels = { "Toyota Camry", "Lada Vesta", "Kia Rio", "Hyundai Solaris" };
+
+        public AutoService(string connectionString)
+        {
+            _repository = new DatabaseRepository(connectionString);
+        }
+
+        public (Customer customer, Part requestedPart, decimal repairCost) GenerateCustomer()
+        {
+            var parts = _repository.GetAllParts();
+            if (!parts.Any()) throw new InvalidOperationException("Нет доступных деталей");
+
+            var requestedPart = parts[_random.Next(parts.Count)];
+            var repairCost = requestedPart.Price * WORK_COST_MULTIPLIER;
+
+            var customer = new Customer(
+                id: 0, // Будет присвоен при сохранении
+                name: _customerNames[_random.Next(_customerNames.Length)],
+                carModel: _carModels[_random.Next(_carModels.Length)]
+            );
+
+            _repository.AddCustomer();
+
+            return (customer, requestedPart, repairCost);
+        }
+
+        public (bool success, string message, decimal penalty) ProcessRepair(Customer customer, Part requestedPart, decimal repairCost)
+        {
+            var gameState = _repository.GetCurrentGameState();
+            if (gameState == null) return (false, "Ошибка: состояние игры не найдено", 0);
+
+            var availableQuantity = _repository.GetAvailableQuantity(requestedPart.Id);
+
+            if (availableQuantity > 0)
+            {
+                if (_repository.ReservePart(requestedPart.Id, 1))
+                {
+                    var orderId = _repository.CreateRepairOrder(customer, requestedPart, repairCost);
+
+                    if (_repository.UsePart(requestedPart.Id, 1))
+                    {
+                        gameState.Balance += repairCost;
+                        _repository.UpdateBalance(gameState.Balance);
+                        _repository.UpdateStatistics(1, 0, 0);
+
+                        return (true, $"Ремонт выполнен успешно! Получено {repairCost:C}", 0);
+                    }
+                }
+            }
+            else
+            {
+                var inventory = _repository.GetInventory();
+                var availableParts = inventory
+                    .Where(i => i.AvailableQuantity > 0 && i.Part.Id != requestedPart.Id)
+                    .ToList();
+
+                if (availableParts.Any())
+                {
+                    var replacement = availableParts[_random.Next(availableParts.Count)];
+                    var penalty = replacement.Part.Price * PENALTY_MULTIPLIER;
+
+                    if (_repository.ReservePart(replacement.Part.Id, 1) &&
+                        _repository.UsePart(replacement.Part.Id, 1))
+                    {
+                        gameState.Balance -= penalty;
+                        _repository.UpdateBalance(gameState.Balance);
+                        _repository.UpdateStatistics(0, 1, 0);
+
+                        return (false,
+                            $"Клиент недоволен! Пришлось поставить {replacement.Part.Name}. " +
+                            $"Штраф: {penalty:C}",
+                            penalty);
+                    }
+                }
+                else
+                {
+                    var penalty = requestedPart.Price * REFUSAL_PENALTY_MULTIPLIER;
+                    gameState.Balance -= penalty;
+                    _repository.UpdateBalance(gameState.Balance);
+                    _repository.UpdateStatistics(0, 0, 1);
+
+                    return (false, $"Отказано в обслуживании. Штраф: {penalty:C}", penalty);
+                }
+            }
+
+            return (false, "Ошибка при обработке заказа", 0);
+        }
