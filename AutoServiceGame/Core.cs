@@ -240,3 +240,89 @@ namespace AutoServiceSimulation
                 return command.ExecuteNonQuery() > 0;
             }
 }
+
+        public int GetAvailableQuantity(int partId)
+        {
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                connection.Open();
+                var sql = "SELECT Quantity - ReservedQuantity FROM Inventory WHERE PartId = @PartId";
+                var command = new SqlCommand(sql, connection);
+                command.Parameters.AddWithValue("@PartId", partId);
+                var result = command.ExecuteScalar();
+                return result != DBNull.Value ? (int)result : 0;
+            }
+        }
+
+        public int CreateRepairOrder(Customer customer, Part requestedPart, decimal repairCost)
+        {
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                connection.Open();
+
+                var customerSql = @"
+                    INSERT INTO Customers (Name, CarModel, SatisfactionLevel) 
+                    VALUES (@Name, @CarModel, @SatisfactionLevel);
+                    SELECT CAST(SCOPE_IDENTITY() as int)";
+
+                var customerCommand = new SqlCommand(customerSql, connection);
+                customerCommand.Parameters.AddWithValue("@Name", customer.Name);
+                customerCommand.Parameters.AddWithValue("@CarModel", customer.CarModel);
+                customerCommand.Parameters.AddWithValue("@SatisfactionLevel", customer.SatisfactionLevel);
+                var customerId = (int)customerCommand.ExecuteScalar();
+
+                var orderSql = @"
+                    INSERT INTO RepairOrders (CustomerId, PartId, RequestedPartId, RepairCost, Status) 
+                    VALUES (@CustomerId, @PartId, @RequestedPartId, @RepairCost, 'Pending');
+                    SELECT CAST(SCOPE_IDENTITY() as int)";
+
+                var orderCommand = new SqlCommand(orderSql, connection);
+                orderCommand.Parameters.AddWithValue("@CustomerId", customerId);
+                orderCommand.Parameters.AddWithValue("@PartId", requestedPart.Id);
+                orderCommand.Parameters.AddWithValue("@RequestedPartId", requestedPart.Id);
+                orderCommand.Parameters.AddWithValue("@RepairCost", repairCost);
+
+                return (int)orderCommand.ExecuteScalar();
+            }
+        }
+
+        public List<PurchaseOrder> GetPendingPurchaseOrders()
+        {
+            var orders = new List<PurchaseOrder>();
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                connection.Open();
+                var sql = @"
+                    SELECT po.*, p.Id as PartId, p.Name, p.Price, p.Category, p.IsCritical
+                    FROM PurchaseOrders po
+                    INNER JOIN Parts p ON po.PartId = p.Id
+                    WHERE po.Status = 'Pending'";
+
+                var command = new SqlCommand(sql, connection);
+                using (var reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        var part = new Part(
+                            id: (int)reader["PartId"],
+                            name: (string)reader["Name"],
+                            price: (decimal)reader["Price"],
+                            category: (string)reader["Category"],
+                            isCritical: (bool)reader["IsCritical"]
+                        );
+
+                        orders.Add(new PurchaseOrder
+                        {
+                            Id = (int)reader["Id"],
+                            Part = part,
+                            Quantity = (int)reader["Quantity"],
+                            TotalCost = (decimal)reader["TotalCost"],
+                            OrderDate = (DateTime)reader["OrderDate"],
+                            DeliveryDay = (int)reader["DeliveryDay"],
+                            Status = (PurchaseStatus)Enum.Parse(typeof(PurchaseStatus), (string)reader["Status"])
+                        });
+                    }
+                }
+            }
+            return orders;
+        }
