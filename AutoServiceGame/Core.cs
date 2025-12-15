@@ -386,3 +386,59 @@ namespace AutoServiceSimulation
             }
             return null;
         }
+
+        public bool UpdateBalance(decimal newBalance)
+        {
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                connection.Open();
+                var sql = "UPDATE GameStates SET Balance = @Balance WHERE Id = (SELECT TOP 1 Id FROM GameStates ORDER BY Id DESC)";
+                var command = new SqlCommand(sql, connection);
+                command.Parameters.AddWithValue("@Balance", newBalance);
+                return command.ExecuteNonQuery() > 0;
+            }
+        }
+
+        public bool UpdateDay(int newDay)
+        {
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                connection.Open();
+                var sql = "UPDATE GameStates SET DayNumber = @DayNumber WHERE Id = (SELECT TOP 1 Id FROM GameStates ORDER BY Id DESC)";
+                var command = new SqlCommand(sql, connection);
+                command.Parameters.AddWithValue("@DayNumber", newDay);
+                return command.ExecuteNonQuery() > 0;
+            }
+        }
+
+        public void UpdateStatistics(int successful, int failed, int refusals)
+        {
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                connection.Open();
+                var sql = @"
+                    UPDATE GameStates 
+                    SET SuccessfulRepairs = SuccessfulRepairs + @Successful,
+                        FailedRepairs = FailedRepairs + @Failed,
+                        Refusals = Refusals + @Refusals
+                    WHERE Id = (SELECT TOP 1 Id FROM GameStates ORDER BY Id DESC)";
+
+                var command = new SqlCommand(sql, connection);
+                command.Parameters.AddWithValue("@Successful", successful);
+                command.Parameters.AddWithValue("@Failed", failed);
+                command.Parameters.AddWithValue("@Refusals", refusals);
+                command.ExecuteNonQuery();
+            }
+        }
+
+        public void AddCustomer()
+        {
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                connection.Open();
+                var sql = "UPDATE GameStates SET TotalCustomers = TotalCustomers + 1 WHERE Id = (SELECT TOP 1 Id FROM GameStates ORDER BY Id DESC)";
+                var command = new SqlCommand(sql, connection);
+                command.ExecuteNonQuery();
+            }
+        }
+    }
