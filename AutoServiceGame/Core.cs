@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
@@ -239,7 +239,7 @@ namespace AutoServiceSimulation
                 command.Parameters.AddWithValue("@PartId", partId);
                 return command.ExecuteNonQuery() > 0;
             }
-}
+        }
 
         public int GetAvailableQuantity(int partId)
         {

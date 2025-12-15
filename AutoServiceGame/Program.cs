@@ -12,7 +12,7 @@ namespace AutoServiceSimulation
 
             try
             {
-                var connectionString = @"Server=(localdb)\MSSQLLocalDB;Database=AutoServiceDB;Trusted_Connection=True;";
+                var connectionString = @"Server=DESKTOP-CMIFD16\SEYDEH;Database=AutoServiceDB;Trusted_Connection=True;";
                 var service = new AutoService(connectionString);
 
                 RunGame(service);
